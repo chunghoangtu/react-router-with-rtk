@@ -1,12 +1,9 @@
 import React from "react";
 import { Link, Outlet, useSearchParams } from "react-router";
 
-type User = {
-  id: string;
-  fullName: string;
-};
+import type { User } from "@/shared/types/commonTypes";
 
-type UsersProps = {
+ type UsersProps = {
   users: User[];
 };
 
@@ -23,7 +20,7 @@ export const Users = ({ users }: UsersProps) => {
 
   return (
     <>
-      <h2>Users</h2>
+      <h2>Users (Protected: authenticated user required)</h2>
 
       <input type="text" value={searchTerm} onChange={handleSearch} />
 

@@ -2,6 +2,6 @@ import React from 'react'
 
 export const Home = () => {
   return (
-    <div>Home</div>
+    <div>Home  (Public: anyone can access this page)</div>
   )
 }
