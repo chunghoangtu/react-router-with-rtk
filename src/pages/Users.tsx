@@ -1,7 +1,7 @@
 import React from "react";
 import { Link, Outlet, useSearchParams } from "react-router";
 
-import type { User } from "@/shared/types/commonTypes";
+import type { User } from "@shared/types/commonTypes";
 
  type UsersProps = {
   users: User[];
