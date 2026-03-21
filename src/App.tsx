@@ -11,24 +11,19 @@ import { Admin } from "@pages/Admin";
 import { Dashboard } from "@pages/Dashboard";
 import { Login } from "@pages/Login";
 
-import { ProtectedRoute, ProtectedRoute2 } from "@shared/components/ProtectedRoute";
+import { ProtectedRoute, ProtectedRouteExtended } from "@shared/components/ProtectedRoute";
 
 // import type { User as AuthUser } from "@shared/types/commonTypes";
 import type { AuthUser } from "@shared/types/commonTypes";
-import { fakeAuth } from "@shared/services/sampleAPIs.service";
-import { AuthContext } from '@shared/services/AuthContext.context';
+import { CustomAuthProvider } from "@shared/components/AuthProvider";
+
+const PageAuthorization = new Map<string, (...args: AuthUser[]) => boolean>([
+  ['admin', (user: AuthUser) => user?.roles.includes('admin')],
+  ['dashboard', (user: AuthUser) => user?.permissions.includes('modify')],
+])
 
 const App = () => {
   const navigate = useNavigate();
-
-  const [currentUser, setCurrentUser] = useState<AuthUser | null>(null);
-  const handleLogin = async () => {
-    await fakeAuth();
-    setCurrentUser({ id: "1", fullName: "robin", permissions: ['modify'], roles: ['admin'] });
-  }
-  const handleLogout = () => {
-    setCurrentUser(null);
-  }
 
   const [users, setUsers] = useState([
     { id: "1", fullName: "Robin Wieruch" },
@@ -41,11 +36,11 @@ const App = () => {
 
   return (
     <>
-      <AuthContext.Provider value={currentUser}>
+      <CustomAuthProvider>
         <Routes>
-          <Route element={<Layout onLogout={handleLogout} />}>
+          <Route element={<Layout />}>
             <Route index element={<Home />} />
-            <Route path="login" element={<Login onLogin={handleLogin} />} />
+            <Route path="login" element={<Login />} />
             {/* Using ProtectedRoute via Outlet */}
             {/* Users page only required user to be present (authenticated) */}
             <Route element={<ProtectedRoute redirectPath="/login" />}>
@@ -56,24 +51,23 @@ const App = () => {
                 />
               </Route>
               {/* Admin page required user to have "admin" role */}
-              <Route path="admin" element={<ProtectedRoute2
+              <Route path="admin" element={<ProtectedRouteExtended
                 redirectPath="/login"
-                isAllowed={currentUser?.roles.includes('admin')}>
+                isAuthorized={PageAuthorization.get('admin')}>
                 <Admin />
-              </ProtectedRoute2>} />
+              </ProtectedRouteExtended>} />
             </Route>
-            {/* <Route path="admin" element={<Admin currentUser={currentUser}/>} /> */}
             {/* Using Protected Route as a layout Component */}
             {/* Dashboard page required user to have "modify" permission*/}
-            <Route path="dashboard" element={<ProtectedRoute2
+            <Route path="dashboard" element={<ProtectedRouteExtended
               redirectPath="/login"
-              isAllowed={currentUser?.permissions.includes('modify')}>
+              isAuthorized={PageAuthorization.get('dashboard')}>
               <Dashboard />
-            </ProtectedRoute2>} />
+            </ProtectedRouteExtended>} />
             <Route path="*" element={<NoMatch />} />
           </Route>
         </Routes>
-      </AuthContext.Provider>
+      </CustomAuthProvider>
     </>
   );
 };

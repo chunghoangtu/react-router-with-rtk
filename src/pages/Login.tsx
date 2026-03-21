@@ -1,14 +1,11 @@
-import React, { useContext } from 'react'
+import React from 'react'
 import { Navigate } from 'react-router';
 
-import { AuthContext } from '@shared/services/AuthContext.context';
+import { useAuth } from '@shared/hooks/useAuth'
 
-type LoginProps = {
-  onLogin: () => void;
-}
+export const Login = () => {
+  const {currentUser, onLogin} = useAuth();
 
-export const Login = ({ onLogin }: LoginProps) => {
-  const currentUser = useContext(AuthContext)
   return (
     currentUser
       ? <Navigate to={'/'} replace />

@@ -1,12 +1,9 @@
-import React, { useContext } from 'react'
-import { AuthContext } from '@shared/services/AuthContext.context'
-
-// type DashboardProps = {
-//   currentUser: AuthUser | null;
-// };
+import React from 'react'
+import { useAuth } from '@shared/hooks/useAuth'
 
 export const Dashboard = () => {
-  const currentUser = useContext(AuthContext)
+  const { currentUser } = useAuth()
+
   return (
     <>
       <h2>Current user: {currentUser?.fullName}</h2>

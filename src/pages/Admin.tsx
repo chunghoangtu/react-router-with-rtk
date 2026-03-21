@@ -1,9 +1,9 @@
-import React, { useContext } from "react";
-import { AuthContext } from "@shared/services/AuthContext.context";
+import React from 'react'
+import { useAuth } from '@shared/hooks/useAuth'
 
 export const Admin = () => {
-  const currentUser = useContext(AuthContext)
-  
+  const { currentUser } = useAuth()
+
   return (
     <div>
       <h2>Current user: {currentUser?.fullName}</h2>
