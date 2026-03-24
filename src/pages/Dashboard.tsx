@@ -1,12 +1,9 @@
 import React from 'react'
+import { useAuth } from '@shared/hooks/useAuth'
 
-import type { User as AuthUser } from "@/shared/types/commonTypes";
+export const Dashboard = () => {
+  const { currentUser } = useAuth()
 
-type DashboardProps = {
-  currentUser: AuthUser | null;
-};
-
-export const Dashboard = ({ currentUser }: DashboardProps) => {
   return (
     <>
       <h2>Current user: {currentUser?.fullName}</h2>

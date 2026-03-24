@@ -1,26 +1,41 @@
 import React from 'react'
-import { Navigate, Outlet } from 'react-router';
-
-import type { User as AuthUser } from '@shared/types/commonTypes'
+import { Navigate, Outlet, useLocation } from 'react-router';
+import { useAuth } from '@shared/hooks/useAuth';
+import type { AuthUser } from '@shared/types/commonTypes';
 
 type ProtectedRouteProps = {
-  currentUser: AuthUser | null;
   redirectPath?: string;
   children?: React.ReactNode
 }
 
-type ProtectedRouteProps2 = {
-  isAllowed?: boolean;
+type ProtectedRouteExtendedProps<T = AuthUser, R = boolean> = {
+  isAuthorized?: (...args: T[]) => R;
   redirectPath?: string;
   children?: React.ReactNode
 }
 
-export const ProtectedRoute = ({ currentUser, redirectPath = '/', children }: ProtectedRouteProps) => {
-  // return currentUser ? children : <Navigate to={redirectPath} replace />
-  return currentUser ? (children || <Outlet />) : <Navigate to={redirectPath} replace />
+/**
+ * The ProtectedRoute here accept both children and Outlet in case we want to render our page as a children of this ProtectedRoute Component
+ * or we want this ProtectedRoute component act like a Layout Component which render its child via the Outlet
+ */
+export const ProtectedRoute = ({ redirectPath = '/', children }: ProtectedRouteProps) => {
+  const location = useLocation()
+  const { currentUser } = useAuth()
+
+  // Put current location to routing state
+  return currentUser
+    ? (children || <Outlet />)
+    : <Navigate to={redirectPath} replace state={{ from: location }} />
 }
 
-export const ProtectedRoute2 = ({ isAllowed, redirectPath = '/', children }: ProtectedRouteProps2) => {
-  // return currentUser ? children : <Navigate to={redirectPath} replace />
-  return isAllowed ? (children || <Outlet />) : <Navigate to={redirectPath} replace />
+export const ProtectedRouteExtended = ({ isAuthorized = () => false, redirectPath = '/', children }: ProtectedRouteExtendedProps) => {
+  const location = useLocation()
+  const { currentUser } = useAuth()
+
+  const hasAccessible = !!(currentUser && isAuthorized(currentUser))
+
+  // Put current location to routing state
+  return hasAccessible
+    ? (children || <Outlet />)
+    : <Navigate to={redirectPath} replace state={{ from: location }} />
 }
