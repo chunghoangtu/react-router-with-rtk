@@ -23,7 +23,9 @@ export const ProtectedRoute = ({ redirectPath = '/', children }: ProtectedRouteP
   const { currentUser } = useAuth()
 
   // Put current location to routing state
-  return currentUser ? (children || <Outlet />) : <Navigate to={redirectPath} replace state={{ from: location }} />
+  return currentUser
+    ? (children || <Outlet />)
+    : <Navigate to={redirectPath} replace state={{ from: location }} />
 }
 
 export const ProtectedRouteExtended = ({ isAuthorized = () => false, redirectPath = '/', children }: ProtectedRouteExtendedProps) => {
@@ -33,5 +35,7 @@ export const ProtectedRouteExtended = ({ isAuthorized = () => false, redirectPat
   const hasAccessible = !!(currentUser && isAuthorized(currentUser))
 
   // Put current location to routing state
-  return hasAccessible ? (children || <Outlet />) : <Navigate to={redirectPath} replace state={{ from: location }} />
+  return hasAccessible
+    ? (children || <Outlet />)
+    : <Navigate to={redirectPath} replace state={{ from: location }} />
 }
