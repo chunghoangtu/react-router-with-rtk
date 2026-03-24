@@ -1,17 +1,19 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { useState } from "react";
+import React, { lazy, Suspense, useState } from "react";
 import { BrowserRouter, Routes, Route, useNavigate } from "react-router";
 
-import { Home } from "@pages/Home";
-import { Users } from "@pages/Users";
+import { ProtectedRoute, ProtectedRouteExtended } from "@shared/components/ProtectedRoute";
 import { Layout } from "@shared/components/Layout";
-import { NoMatch } from "@pages/NoMatch";
-import { User } from "@pages/User";
-import { Admin } from "@pages/Admin";
-import { Dashboard } from "@pages/Dashboard";
 import { Login } from "@pages/Login";
 
-import { ProtectedRoute, ProtectedRouteExtended } from "@shared/components/ProtectedRoute";
+// Perform lazy loading
+// We need to map component to default type (or we can go to the component file and change them to default export)
+const Home = lazy(() => import("@pages/Home").then(module => ({ default: module.Home })));
+const Users = lazy(() => import("@pages/Users").then(module => ({ default: module.Users })));
+const User = lazy(() => import("@pages/User").then(module => ({ default: module.User })));
+const Dashboard = lazy(() => import("@pages/Dashboard").then(module => ({ default: module.Dashboard })));
+const Admin = lazy(() => import("@pages/Admin").then(module => ({ default: module.Admin })));
+const NoMatch = lazy(() => import("@pages/NoMatch").then(module => ({ default: module.NoMatch })));
 
 // import type { User as AuthUser } from "@shared/types/commonTypes";
 import type { AuthUser } from "@shared/types/commonTypes";
@@ -29,32 +31,35 @@ const App = () => {
     { id: "1", fullName: "Robin Wieruch" },
     { id: "2", fullName: "Sarah Finnley" },
   ]);
+
   const handleRemoveUser = (userId: string | undefined) => {
     setUsers((state) => state.filter((user) => user.id !== userId));
     navigate("/users");
   };
+
+  const renderLazyPage = (pageComponent: React.ReactElement) => <Suspense fallback={<div>Loading...</div>}>{pageComponent}</Suspense>
 
   return (
     <>
       <CustomAuthProvider>
         <Routes>
           <Route element={<Layout />}>
-            <Route index element={<Home />} />
+            <Route index element={renderLazyPage(<Home />)} />
             <Route path="login" element={<Login />} />
             {/* Using ProtectedRoute via Outlet */}
             {/* Users page only required user to be present (authenticated) */}
             <Route element={<ProtectedRoute redirectPath="/login" />}>
-              <Route path="users" element={<Users users={users} />}>
+              <Route path="users" element={renderLazyPage(<Users users={users} />)}>
                 <Route
                   path=":userId"
-                  element={<User onRemoveUser={handleRemoveUser} />}
+                  element={renderLazyPage(<User onRemoveUser={handleRemoveUser} />)}
                 />
               </Route>
               {/* Admin page required user to have "admin" role */}
               <Route path="admin" element={<ProtectedRouteExtended
                 redirectPath="/login"
                 isAuthorized={PageAuthorization.get('admin')}>
-                <Admin />
+                {renderLazyPage(<Admin />)}
               </ProtectedRouteExtended>} />
             </Route>
             {/* Using Protected Route as a layout Component */}
@@ -62,9 +67,9 @@ const App = () => {
             <Route path="dashboard" element={<ProtectedRouteExtended
               redirectPath="/login"
               isAuthorized={PageAuthorization.get('dashboard')}>
-              <Dashboard />
+              {renderLazyPage(<Dashboard />)}
             </ProtectedRouteExtended>} />
-            <Route path="*" element={<NoMatch />} />
+            <Route path="*" element={renderLazyPage(<NoMatch />)} />
           </Route>
         </Routes>
       </CustomAuthProvider>
