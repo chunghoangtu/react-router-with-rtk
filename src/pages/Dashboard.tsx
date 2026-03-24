@@ -1,12 +1,12 @@
-import React from 'react'
+import React, { useContext } from 'react'
+import { AuthContext } from '@shared/services/AuthContext.context'
 
-import type { User as AuthUser } from "@/shared/types/commonTypes";
+// type DashboardProps = {
+//   currentUser: AuthUser | null;
+// };
 
-type DashboardProps = {
-  currentUser: AuthUser | null;
-};
-
-export const Dashboard = ({ currentUser }: DashboardProps) => {
+export const Dashboard = () => {
+  const currentUser = useContext(AuthContext)
   return (
     <>
       <h2>Current user: {currentUser?.fullName}</h2>
