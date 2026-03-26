@@ -2,7 +2,7 @@
 import React, { lazy, Suspense, useState } from "react";
 import { BrowserRouter, Routes, Route, useNavigate } from "react-router";
 
-import { ProtectedRoute, ProtectedRouteExtended } from "@shared/components/ProtectedRoute";
+import { ProtectedRoute, ProtectedRouteExtended } from "@/shared/components/routing/ProtectedRoute";
 import { Layout } from "@shared/components/Layout";
 import { Login } from "@pages/Login";
 
@@ -46,29 +46,24 @@ const App = () => {
           <Route element={<Layout />}>
             <Route index element={renderLazyPage(<Home />)} />
             <Route path="login" element={<Login />} />
-            {/* Using ProtectedRoute via Outlet */}
+
             {/* Users page only required user to be present (authenticated) */}
             <Route element={<ProtectedRoute redirectPath="/login" />}>
               <Route path="users" element={renderLazyPage(<Users users={users} />)}>
-                <Route
-                  path=":userId"
-                  element={renderLazyPage(<User onRemoveUser={handleRemoveUser} />)}
-                />
+                <Route path=":userId" element={renderLazyPage(<User onRemoveUser={handleRemoveUser} />)} />
               </Route>
-              {/* Admin page required user to have "admin" role */}
-              <Route path="admin" element={<ProtectedRouteExtended
-                redirectPath="/login"
-                isAuthorized={PageAuthorization.get('admin')}>
-                {renderLazyPage(<Admin />)}
-              </ProtectedRouteExtended>} />
             </Route>
-            {/* Using Protected Route as a layout Component */}
+
+            {/* Admin page required user to have "admin" role */}
+            <Route element={<ProtectedRouteExtended redirectPath="/login" isAuthorized={PageAuthorization.get('admin')} />}>
+              <Route path="admin" element={renderLazyPage(<Admin />)} />
+            </Route> 
+
             {/* Dashboard page required user to have "modify" permission*/}
-            <Route path="dashboard" element={<ProtectedRouteExtended
-              redirectPath="/login"
-              isAuthorized={PageAuthorization.get('dashboard')}>
-              {renderLazyPage(<Dashboard />)}
-            </ProtectedRouteExtended>} />
+            <Route element={<ProtectedRouteExtended redirectPath="/login" isAuthorized={PageAuthorization.get('dashboard')} />}>
+              <Route path="dashboard" element={renderLazyPage(<Dashboard />)} />
+            </Route>
+
             <Route path="*" element={renderLazyPage(<NoMatch />)} />
           </Route>
         </Routes>
@@ -76,6 +71,21 @@ const App = () => {
     </>
   );
 };
+
+{/* Using ProtectedRoute via Outlet */ }
+{/* <Route element={<ProtectedRoute redirectPath="/login" />}>
+  <Route path="admin" element={<ProtectedRouteExtended
+    redirectPath="/login"
+    isAuthorized={PageAuthorization.get('admin')}>
+    {renderLazyPage(<Admin />)}
+  </ProtectedRouteExtended>} />
+</Route> */}
+{/* Using Protected Route as a layout Component */ }
+{/* <Route path="dashboard" element={<ProtectedRouteExtended
+  redirectPath="/login"
+  isAuthorized={PageAuthorization.get('dashboard')}>
+  {renderLazyPage(<Dashboard />)}
+</ProtectedRouteExtended>} /> */}
 
 const AppWithRouter = () => {
   return (
