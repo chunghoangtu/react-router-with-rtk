@@ -32,7 +32,7 @@ export const ProtectedRouteExtended = ({ isAuthorized = () => false, redirectPat
   const location = useLocation()
   const { currentUser } = useAuth()
 
-  const hasAccessible = !!(currentUser && isAuthorized(currentUser))
+  const hasAccessible = !!(currentUser && isAuthorized && isAuthorized(currentUser))
 
   // Put current location to routing state
   return hasAccessible
